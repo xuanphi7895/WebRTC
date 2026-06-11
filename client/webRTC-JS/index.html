@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WebRTC Local Video Call</title>
+  <style>
+    video {
+      width: 45%;
+      margin: 10px;
+      border-radius: 10px;
+      border: 2px solid #2563eb;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>WebRTC Local Video Call (Manual Signaling)</h2>
+
+<video id="localVideo" autoplay muted playsinline></video>
+<video id="remoteVideo" autoplay playsinline></video>
+
+<br><br>
+
+<button onclick="createOffer()">Create Offer</button>
+<button onclick="createAnswer()">Create Answer</button>
+
+<h4>SDP</h4>
+<textarea id="sdp"></textarea>
+<button onclick="setRemote()">Set Remote SDP</button>
+
+<script>
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const sdpTextarea = document.getElementById('sdp');
+
+const pc = new RTCPeerConnection({
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+});
+
+pc.ontrack = e => remoteVideo.srcObject = e.streams[0];
+
+pc.onicecandidate = e => {
+  if (e.candidate === null) {
+    sdpTextarea.value = JSON.stringify(pc.localDescription);
+  }
+};
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+  .then(stream => {
+    localVideo.srcObject = stream;
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+  });
+
+async function createOffer() {
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+}
+
+async function createAnswer() {
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+}
+
+async function setRemote() {
+  const desc = JSON.parse(sdpTextarea.value);
+  await pc.setRemoteDescription(desc);
+}
+</script>
+
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>WebRTC LAN Call</title>
+</head>
+<body>
+
+<video id="local" autoplay muted playsinline></video>
+<video id="remote" autoplay playsinline></video>
+
+<script>
+const pc = new RTCPeerConnection({
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+});
+
+const ws = new WebSocket('ws://192.168.81.1:8080');
+
+ws.onmessage = async e => {
+  const data = JSON.parse(e.data);
+  if (data.sdp) {
+    await pc.setRemoteDescription(data.sdp);
+    if (data.sdp.type === 'offer') {
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      ws.send(JSON.stringify({ sdp: pc.localDescription }));
+    }
+  }
+  if (data.candidate) {
+    await pc.addIceCandidate(data.candidate);
+  }
+};
+
+pc.onicecandidate = e => {
+  if (e.candidate) {
+    ws.send(JSON.stringify({ candidate: e.candidate }));
+  }
+};
+
+pc.ontrack = e => remote.srcObject = e.streams[0];
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+  .then(stream => {
+    local.srcObject = stream;
+    stream.getTracks().forEach(t => pc.addTrack(t, stream));
+  });
+
+ws.onopen = async () => {
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  ws.send(JSON.stringify({ sdp: pc.localDescription }));
+};
+</script>
+
+</body>
+</html> -->
