@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "eW/hbo7PQtI=",
+  "success": true,
+  "projectFilePath": "D:\\web\\server\\chat-server\\chat-server.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\PC\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.8\\microsoft.aspnetcore.openapi.10.0.8.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
