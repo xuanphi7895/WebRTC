@@ -1,0 +1,3 @@
+[submodule "client/webRTC-JS/samples"]
+	path = client/webRTC-JS/samples
+	url = https://github.com/xuanphi7895/WebRTC.git
